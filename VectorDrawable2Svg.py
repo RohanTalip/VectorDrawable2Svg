@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 VectorDrawable2Svg
 This script converts VectorDrawable .xml files to SVG files.
