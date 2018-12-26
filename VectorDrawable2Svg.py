@@ -10,93 +10,93 @@ from xml.dom.minidom import *
 import sys
 
 
-# extracts all paths inside vdContainer and add them into svgContainer
-def convertPaths(vdContainer, svgContainer, svgXml):
-    vdPaths = vdContainer.getElementsByTagName('path')
-    for vdPath in vdPaths:
+# extracts all paths inside vd_container and add them into svg_container
+def convert_paths(vd_container, svg_container, svg_xml):
+    vd_paths = vd_container.getElementsByTagName('path')
+    for vd_path in vd_paths:
         # only iterate in the first level
-        if vdPath.parentNode == vdContainer:
-            svgPath = svgXml.createElement('path')
-            svgPath.attributes['d'] = vdPath.attributes[
+        if vd_path.parentNode == vd_container:
+            svg_path = svg_xml.createElement('path')
+            svg_path.attributes['d'] = vd_path.attributes[
                 'android:pathData'].value
-            if vdPath.hasAttribute('android:fillColor'):
-                svgPath.attributes['fill'] = vdPath.attributes[
+            if vd_path.hasAttribute('android:fillColor'):
+                svg_path.attributes['fill'] = vd_path.attributes[
                     'android:fillColor'].value
             else:
-                svgPath.attributes['fill'] = 'none'
-            if vdPath.hasAttribute('android:strokeLineJoin'):
-                svgPath.attributes['stroke-linejoin'] = vdPath.attributes[
+                svg_path.attributes['fill'] = 'none'
+            if vd_path.hasAttribute('android:strokeLineJoin'):
+                svg_path.attributes['stroke-linejoin'] = vd_path.attributes[
                     'android:strokeLineJoin'].value
-            if vdPath.hasAttribute('android:strokeLineCap'):
-                svgPath.attributes['stroke-linecap'] = vdPath.attributes[
+            if vd_path.hasAttribute('android:strokeLineCap'):
+                svg_path.attributes['stroke-linecap'] = vd_path.attributes[
                     'android:strokeLineCap'].value
-            if vdPath.hasAttribute('android:strokeMiterLimit'):
-                svgPath.attributes['stroke-miterlimit'] = vdPath.attributes[
+            if vd_path.hasAttribute('android:strokeMiterLimit'):
+                svg_path.attributes['stroke-miterlimit'] = vd_path.attributes[
                     'android:strokeMiterLimit'].value
-            if vdPath.hasAttribute('android:strokeWidth'):
-                svgPath.attributes['stroke-width'] = vdPath.attributes[
+            if vd_path.hasAttribute('android:strokeWidth'):
+                svg_path.attributes['stroke-width'] = vd_path.attributes[
                     'android:strokeWidth'].value
-            if vdPath.hasAttribute('android:strokeColor'):
-                svgPath.attributes['stroke'] = vdPath.attributes[
+            if vd_path.hasAttribute('android:strokeColor'):
+                svg_path.attributes['stroke'] = vd_path.attributes[
                     'android:strokeColor'].value
-            svgContainer.appendChild(svgPath)
+            svg_container.appendChild(svg_path)
 
 
 # define the function which converts a vector drawable to a svg
-def convertVd(vdFilePath):
+def convert_vector_drawable(vd_file_path):
 
     # create svg xml
-    svgXml = Document()
-    svgNode = svgXml.createElement('svg')
-    svgXml.appendChild(svgNode)
+    svg_xml = Document()
+    svg_node = svg_xml.createElement('svg')
+    svg_xml.appendChild(svg_node)
 
     # open vector drawable
-    vdXml = parse(vdFilePath)
-    vdNode = vdXml.getElementsByTagName('vector')[0]
+    vd_xml = parse(vd_file_path)
+    vd_node = vd_xml.getElementsByTagName('vector')[0]
 
     # setup basic svg info
-    svgNode.attributes['xmlns'] = 'http://www.w3.org/2000/svg'
-    svgNode.attributes['width'] = vdNode.attributes[
+    svg_node.attributes['xmlns'] = 'http://www.w3.org/2000/svg'
+    svg_node.attributes['width'] = vd_node.attributes[
         'android:viewportWidth'].value
-    svgNode.attributes['height'] = vdNode.attributes[
+    svg_node.attributes['height'] = vd_node.attributes[
         'android:viewportHeight'].value
-    svgNode.attributes['viewBox'] = '0 0 {} {}'.format(
-        vdNode.attributes['android:viewportWidth'].value,
-        vdNode.attributes['android:viewportHeight'].value)
+    svg_node.attributes['viewBox'] = '0 0 {} {}'.format(
+        vd_node.attributes['android:viewportWidth'].value,
+        vd_node.attributes['android:viewportHeight'].value)
 
     # iterate through all groups
-    vdGroups = vdXml.getElementsByTagName('group')
-    for vdGroup in vdGroups:
+    vd_groups = vd_xml.getElementsByTagName('group')
+    for vd_group in vd_groups:
 
         # create the group
-        svgGroup = svgXml.createElement('g')
+        svg_group = svg_xml.createElement('g')
 
         # setup attributes of the group
-        if vdGroup.hasAttribute('android:translateX'):
-            svgGroup.attributes['transform'] = 'translate({},{})'.format(
-                vdGroup.attributes['android:translateX'].value,
-                vdGroup.attributes['android:translateY'].value)
+        if vd_group.hasAttribute('android:translateX'):
+            svg_group.attributes['transform'] = 'translate({},{})'.format(
+                vd_group.attributes['android:translateX'].value,
+                vd_group.attributes['android:translateY'].value)
 
         # iterate through all paths inside the group
-        convertPaths(vdGroup, svgGroup, svgXml)
+        convert_paths(vd_group, svg_group, svg_xml)
 
         # append the group to the svg node
-        svgNode.appendChild(svgGroup)
+        svg_node.appendChild(svg_group)
 
     # iterate through all svg-level paths
-    convertPaths(vdNode, svgNode, svgXml)
+    convert_paths(vd_node, svg_node, svg_xml)
 
     # write xml to file
-    svgXml.writexml(
-        open(vdFilePath + '.svg', 'w'), indent="", addindent="  ", newl='\n')
+    svg_xml.writexml(
+        open(vd_file_path + '.svg', 'w'), indent="", addindent="  ", newl='\n')
 
 
 # script begin
 if len(sys.argv) > 1:
-    iterArgs = iter(sys.argv)
-    next(iterArgs)  #skip the first entry (it's the name of the script)
-    for arg in iterArgs:
-        convertVd(arg)
+    iter_args = iter(sys.argv)
+    next(iter_args)  #skip the first entry (it's the name of the script)
+    for arg in iter_args:
+        convert_vector_drawable(arg)
 else:
     print("You have to pass me something")
     sys.exit()
