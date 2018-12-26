@@ -7,7 +7,6 @@ Modified by: Rohan Talip
 
 import argparse
 from xml.dom.minidom import Document, parse
-import sys
 import traceback
 
 color_map = {}
