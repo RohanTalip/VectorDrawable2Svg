@@ -112,11 +112,17 @@ def convert_vector_drawable(vd_file_path, viewbox_only):
         # create the group
         svg_group = svg_xml.createElement('g')
 
-        # setup attributes of the group
+        translate_x = translate_y = 0
+
         if vd_group.hasAttribute('android:translateX'):
+            translate_x = vd_group.attributes['android:translateX'].value
+
+        if vd_group.hasAttribute('android:translateY'):
+            translate_y = vd_group.attributes['android:translateY'].value
+
+        if translate_x or translate_y:
             svg_group.attributes['transform'] = 'translate({},{})'.format(
-                vd_group.attributes['android:translateX'].value,
-                vd_group.attributes['android:translateY'].value)
+                translate_x, translate_y)
 
         # iterate through all paths inside the group
         convert_paths(vd_group, svg_group, svg_xml)
