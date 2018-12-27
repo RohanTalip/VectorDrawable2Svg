@@ -11,7 +11,15 @@ This repository was forked from https://gitlab.com/Hyperion777/VectorDrawable2Sv
 python3 VectorDrawable2Svg.py a.xml b.xml ...
 ```
 
-The output .svg files are written in the same directory as the .xml files (currently by simply appending .svg to the filename).
+```python
+./VectorDrawable2Svg.py --color-xml-file=path/to/color.xml a.xml b.xml ...
+```
+
+```python
+/path/to/VectorDrawable2Svg.py --viewbox-only a.xml b.xml ...
+```
+
+The output .svg files are written in the same directory as the .xml files (currently by simply replacing .xml with .svg in the filename).
 
 
 ## Improvements
