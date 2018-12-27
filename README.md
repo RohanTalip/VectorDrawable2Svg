@@ -5,9 +5,10 @@ The VectorDrawable2Svg.py Python script converts Android VectorDrawable `.xml`
 files to `.svg` files.
 
 This repository was forked from
-https://gitlab.com/Hyperion777/VectorDrawable2Svg since that one did not seem to
-be actively maintained (based on the unaddressed issues and pull requests
-there).
+https://gitlab.com/Hyperion777/VectorDrawable2Svg to add handling of indirect
+colour references (e.g. in color.xml files) since that repository did not seem
+to be actively maintained (based on the unaddressed issues and merge/pull
+requests there at the time).
 
 
 ## Usage
