@@ -12,15 +12,15 @@ requests there at the time).
 
 
 ## Usage
-```python
+```shell
 python3 VectorDrawable2Svg.py a.xml b.xml ...
 ```
 
-```python
+```shell
 ./VectorDrawable2Svg.py --color-xml-file=path/to/color.xml a.xml b.xml ...
 ```
 
-```python
+```shell
 /path/to/VectorDrawable2Svg.py --viewbox-only a.xml b.xml ...
 ```
 
