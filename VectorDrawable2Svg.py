@@ -139,8 +139,10 @@ def convert_vector_drawable(vd_file_path, viewbox_only, output_dir):
     if output_dir:
         svg_file_path = os.path.join(output_dir,
                                      os.path.basename(svg_file_path))
-    svg_xml.writexml(
-        open(svg_file_path, 'w'), indent="", addindent="  ", newl='\n')
+    svg_xml.writexml(open(svg_file_path, 'w'),
+                     indent="",
+                     addindent="  ",
+                     newl='\n')
 
 
 def main():
@@ -149,8 +151,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="e.g. %(prog)s *.xml")
 
-    parser.add_argument(
-        "--colors-xml-file", action="append", help="A colors.xml file")
+    parser.add_argument("--colors-xml-file",
+                        action="append",
+                        help="A colors.xml file")
     parser.add_argument("--output-dir", help="An output directory")
     parser.add_argument(
         "--viewbox-only",
