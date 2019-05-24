@@ -7,15 +7,16 @@ Modified by: Rohan Talip
 """
 
 import argparse
+import os.path
 from xml.dom.minidom import Document, parse
 import traceback
 
 color_map = {}
 
 
-def read_color_xml(file_path):
-    color_xml = parse(file_path)
-    resource_node = color_xml.getElementsByTagName('resources')[0]
+def read_colors_xml(file_path):
+    colors_xml = parse(file_path)
+    resource_node = colors_xml.getElementsByTagName('resources')[0]
     for color_node in resource_node.getElementsByTagName('color'):
         name = color_node.attributes['name'].value
         value = color_node.firstChild.nodeValue
@@ -82,7 +83,7 @@ def convert_paths(vd_container, svg_container, svg_xml):
 
 
 # define the function which converts a vector drawable to a svg
-def convert_vector_drawable(vd_file_path, viewbox_only):
+def convert_vector_drawable(vd_file_path, viewbox_only, output_dir):
 
     # create svg xml
     svg_xml = Document()
@@ -135,6 +136,9 @@ def convert_vector_drawable(vd_file_path, viewbox_only):
 
     # write xml to file
     svg_file_path = vd_file_path.replace('.xml', '.svg')
+    if output_dir:
+        svg_file_path = os.path.join(output_dir,
+                                     os.path.basename(svg_file_path))
     svg_xml.writexml(
         open(svg_file_path, 'w'), indent="", addindent="  ", newl='\n')
 
@@ -146,7 +150,8 @@ def main():
         epilog="e.g. %(prog)s *.xml")
 
     parser.add_argument(
-        "--color-xml-file", action="append", help="A color.xml file")
+        "--colors-xml-file", action="append", help="A colors.xml file")
+    parser.add_argument("--output-dir", help="An output directory")
     parser.add_argument(
         "--viewbox-only",
         "--viewBox-only",
@@ -155,14 +160,15 @@ def main():
     parser.add_argument("xml_files", nargs="+", metavar='xml-file')
     args = parser.parse_args()
 
-    if args.color_xml_file:
-        for color_xml_file in args.color_xml_file:
-            read_color_xml(color_xml_file)
+    if args.colors_xml_file:
+        for colors_xml_file in args.colors_xml_file:
+            read_colors_xml(colors_xml_file)
 
     for xml_file in args.xml_files:
         print("Converting", xml_file)
         try:
-            convert_vector_drawable(xml_file, args.viewbox_only)
+            convert_vector_drawable(xml_file, args.viewbox_only,
+                                    args.output_dir)
         except Exception:
             print("Failed to convert", xml_file)
             traceback.print_exc()
