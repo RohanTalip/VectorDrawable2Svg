@@ -29,6 +29,11 @@ def get_color(value, depth=1):
     prefix = '@color/'
 
     if value.startswith('#'):
+        if len(value) == 9:
+            # This is a hex color value with an alpha channel.
+            # VectorDrawable files have the alpha at the start and SVG files
+            # have it at the end.
+            return '#' + value[3:9] + value[1:3]
         return value
 
     if depth >= 3:
