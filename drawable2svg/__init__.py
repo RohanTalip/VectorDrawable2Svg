@@ -1,0 +1,1 @@
+name = "drawable2svg"

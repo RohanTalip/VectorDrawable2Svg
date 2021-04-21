@@ -10,6 +10,7 @@ colour references (e.g. in color.xml files) since that repository did not seem
 to be actively maintained (based on the unaddressed issues and merge/pull
 requests there at the time).
 
+The drawable also offers the functionality as a library drawable2svg.
 
 ## Usage
 ```shell
