@@ -53,39 +53,94 @@ def get_color(value, depth=1):
 
 
 # extracts all paths inside vd_container and add them into svg_container
-def convert_paths(vd_container, svg_container, svg_xml):
-    vd_paths = vd_container.getElementsByTagName('path')
-    for vd_path in vd_paths:
-        # only iterate in the first level
-        if vd_path.parentNode == vd_container:
-            svg_path = svg_xml.createElement('path')
-            svg_path.attributes['d'] = vd_path.attributes[
-                'android:pathData'].value
+def convert_path(vd_path, svg_container, svg_xml):
+    svg_path = svg_xml.createElement('path')
+    svg_path.attributes['d'] = vd_path.attributes[
+        'android:pathData'].value
 
-            if vd_path.hasAttribute('android:fillColor'):
-                svg_path.attributes['fill'] = get_color(
-                    vd_path.attributes['android:fillColor'].value)
-            else:
-                svg_path.attributes['fill'] = 'none'
+    if vd_path.hasAttribute('android:fillColor'):
+        svg_path.attributes['fill'] = get_color(
+            vd_path.attributes['android:fillColor'].value)
+    else:
+        svg_path.attributes['fill'] = 'none'
+    
+    if vd_path.hasAttribute('android:fillAlpha'):
+        svg_path.attributes['fill-opacity'] = vd_path.attributes[
+            'android:fillAlpha'].value
 
-            if vd_path.hasAttribute('android:strokeLineJoin'):
-                svg_path.attributes['stroke-linejoin'] = vd_path.attributes[
-                    'android:strokeLineJoin'].value
-            if vd_path.hasAttribute('android:strokeLineCap'):
-                svg_path.attributes['stroke-linecap'] = vd_path.attributes[
-                    'android:strokeLineCap'].value
-            if vd_path.hasAttribute('android:strokeMiterLimit'):
-                svg_path.attributes['stroke-miterlimit'] = vd_path.attributes[
-                    'android:strokeMiterLimit'].value
-            if vd_path.hasAttribute('android:strokeWidth'):
-                svg_path.attributes['stroke-width'] = vd_path.attributes[
-                    'android:strokeWidth'].value
-            if vd_path.hasAttribute('android:strokeColor'):
-                svg_path.attributes['stroke'] = get_color(
-                    vd_path.attributes['android:strokeColor'].value)
+    if vd_path.hasAttribute('android:fillType'):
+        svg_path.attributes['fill-rule'] = vd_path.attributes[
+            'android:fillType'].value
 
-            svg_container.appendChild(svg_path)
+    if vd_path.hasAttribute('android:strokeLineJoin'):
+        svg_path.attributes['stroke-linejoin'] = vd_path.attributes[
+            'android:strokeLineJoin'].value
+    if vd_path.hasAttribute('android:strokeLineCap'):
+        svg_path.attributes['stroke-linecap'] = vd_path.attributes[
+            'android:strokeLineCap'].value
+    if vd_path.hasAttribute('android:strokeMiterLimit'):
+        svg_path.attributes['stroke-miterlimit'] = vd_path.attributes[
+            'android:strokeMiterLimit'].value
+    if vd_path.hasAttribute('android:strokeWidth'):
+        svg_path.attributes['stroke-width'] = vd_path.attributes[
+            'android:strokeWidth'].value
+    if vd_path.hasAttribute('android:strokeColor'):
+        svg_path.attributes['stroke'] = get_color(
+            vd_path.attributes['android:strokeColor'].value)
 
+    svg_container.appendChild(svg_path)
+
+def convert_group(vd_group, svg_container, svg_xml):
+        # create the group
+        svg_group = svg_xml.createElement('g')
+
+        transforms = []
+        translate_x = translate_y = 0
+
+        if vd_group.hasAttribute('android:translateX'):
+            translate_x = vd_group.attributes['android:translateX'].value
+
+        if vd_group.hasAttribute('android:translateY'):
+            translate_y = vd_group.attributes['android:translateY'].value
+
+        if translate_x or translate_y:
+             transforms.append('translate({} {})'.format(
+                translate_x, translate_y))
+
+        rotation = pivotX = pivotY = 0.0
+
+        if vd_group.hasAttribute('android:rotation'):
+                rotation = float(vd_group.attributes['android:rotation'].value)
+        if vd_group.hasAttribute('android:pivotX'):
+                pivotX = float(vd_group.attributes['android:pivotX'].value)
+        if vd_group.hasAttribute('android:pivotY'):
+                pivotY = float(vd_group.attributes['android:pivotY'].value)
+        if rotation:
+                transforms.append('rotate({} {} {})'.format(rotation, pivotX, pivotY))
+        
+        scaleX = scaleY = 0
+        had_scale = False
+        if vd_group.hasAttribute('android:scaleX'):
+                scaleX = float(vd_group.attributes['android:scaleX'].value)
+                had_scale = True
+        if vd_group.hasAttribute('android:scaleY'):
+                scaleY = float(vd_group.attributes['android:scaleY'].value)
+                had_scale = True
+        if had_scale:
+                transforms.append('scale({} {})'.format(scaleX, scaleY))
+
+        if transforms:
+                svg_group.attributes['transform'] = ' '.join(transforms)
+                
+        svg_container.appendChild(svg_group)
+        process_children(vd_group, svg_group, svg_xml)
+
+def process_children(vd_node, svg_container, svg_xml):
+        for vd_child in vd_node.childNodes:
+                if vd_child.nodeName == 'group':
+                        convert_group(vd_child, svg_container, svg_xml)
+                elif vd_child.nodeName == 'path':
+                        convert_path(vd_child, svg_container, svg_xml)
 
 # define the function which converts a vector drawable to a svg
 def convert_vector_drawable(vd_file_path, viewbox_only, output_dir):
@@ -111,33 +166,7 @@ def convert_vector_drawable(vd_file_path, viewbox_only, output_dir):
         vd_node.attributes['android:viewportWidth'].value,
         vd_node.attributes['android:viewportHeight'].value)
 
-    # iterate through all groups
-    vd_groups = vd_xml.getElementsByTagName('group')
-    for vd_group in vd_groups:
-
-        # create the group
-        svg_group = svg_xml.createElement('g')
-
-        translate_x = translate_y = 0
-
-        if vd_group.hasAttribute('android:translateX'):
-            translate_x = vd_group.attributes['android:translateX'].value
-
-        if vd_group.hasAttribute('android:translateY'):
-            translate_y = vd_group.attributes['android:translateY'].value
-
-        if translate_x or translate_y:
-            svg_group.attributes['transform'] = 'translate({},{})'.format(
-                translate_x, translate_y)
-
-        # iterate through all paths inside the group
-        convert_paths(vd_group, svg_group, svg_xml)
-
-        # append the group to the svg node
-        svg_node.appendChild(svg_group)
-
-    # iterate through all svg-level paths
-    convert_paths(vd_node, svg_node, svg_xml)
+    process_children(vd_node, svg_node, svg_xml)
 
     # write xml to file
     svg_file_path = vd_file_path.replace('.xml', '.svg')
