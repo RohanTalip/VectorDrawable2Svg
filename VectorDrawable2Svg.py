@@ -83,6 +83,9 @@ def convert_paths(vd_container, svg_container, svg_xml):
             if vd_path.hasAttribute('android:strokeColor'):
                 svg_path.attributes['stroke'] = get_color(
                     vd_path.attributes['android:strokeColor'].value)
+            if vd_path.hasAttribute('android:fillType'):
+                if vd_path.attributes['android:fillType'].value == 'evenOdd':
+                    svg_path.attributes['fill-rule'] = 'evenodd'
 
             svg_container.appendChild(svg_path)
 
